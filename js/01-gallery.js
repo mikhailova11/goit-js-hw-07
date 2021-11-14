@@ -3,18 +3,21 @@ import { galleryItems } from './gallery-items.js';
 
 const galerryContainer = document.querySelector('.gallery');
 const galerryMarkup = createGalleryItemMarkup(galleryItems);
+let openOriginalImage;
+
+galerryContainer.insertAdjacentHTML('beforeend', galerryMarkup);
 
 galerryContainer.addEventListener('click', onGalerryContainerClick);
 
+galerryContainer.addEventListener('keydown', onPressEscToCloseImage);
 
-galerryContainer.insertAdjacentHTML('beforeend', galerryMarkup);
 
 function createGalleryItemMarkup(images) {
     return images
     .map(({preview, original, description}) => {
         return `
             <div class="gallery__item">
-            <a class="gallery__link" href="${original}">>
+            <a class="gallery__link" href="${original}">
                 <img 
                 class="gallery__image"
                 src="${preview}"
@@ -28,11 +31,21 @@ function createGalleryItemMarkup(images) {
     .join('');
 }
 
-function onGalerryContainerClick(evt){
+function onGalerryContainerClick(event){
     
-    if(!evt.target.classList.contains('gallery__link')){
+    event.preventDefault();
+    if (event.target.nodeName !== "IMG") {
         return;
     }
-
+    openOriginalImage = basicLightbox.create(`
+		<img src="${event.target.dataset.source}" width="1280" height="900">
+	`)
+    openOriginalImage.show()
 }
 
+function onPressEscToCloseImage(event) {
+    if (event.code !== 'Escape') {
+        return;
+      }
+      openOriginalImage.close();
+  }
